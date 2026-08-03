@@ -15,10 +15,26 @@ enum TrackBearError: LocalizedError {
             return "That server URL doesn't look right."
         case .server(let status, let message):
             return "TrackBear returned an error (\(status)): \(message)"
-        case .decoding:
-            return "Couldn't understand TrackBear's response."
+        case .decoding(let error):
+            return "Couldn't understand TrackBear's response: \(Self.describe(error))"
         case .transport(let error):
             return error.localizedDescription
+        }
+    }
+
+    private static func describe(_ error: Error) -> String {
+        guard let decodingError = error as? DecodingError else { return error.localizedDescription }
+        switch decodingError {
+        case .keyNotFound(let key, let context):
+            return "missing \"\(key.stringValue)\" at \(context.codingPath.map(\.stringValue).joined(separator: "."))"
+        case .typeMismatch(let type, let context):
+            return "expected \(type) at \(context.codingPath.map(\.stringValue).joined(separator: "."))"
+        case .valueNotFound(let type, let context):
+            return "missing value for \(type) at \(context.codingPath.map(\.stringValue).joined(separator: "."))"
+        case .dataCorrupted(let context):
+            return context.debugDescription
+        @unknown default:
+            return decodingError.localizedDescription
         }
     }
 }
@@ -82,10 +98,16 @@ struct TrackBearAPIClient {
             return empty
         }
 
+        // TrackBear's docs disagree with themselves about whether responses are
+        // wrapped in {"success":true,"data":...}. Try unwrapped first (that's what
+        // the live schema previews showed), then fall back to the envelope.
         do {
             return try decoder.decode(T.self, from: data)
-        } catch {
-            throw TrackBearError.decoding(error)
+        } catch let directError {
+            if let enveloped = try? decoder.decode(Envelope<T>.self, from: data) {
+                return enveloped.data
+            }
+            throw TrackBearError.decoding(directError)
         }
     }
 
@@ -139,4 +161,10 @@ struct TrackBearAPIClient {
 struct EmptyResponse: Decodable {
     init() {}
     init(from decoder: Decoder) throws {}
+}
+
+/// TrackBear's documented (but not always used) response envelope.
+private struct Envelope<T: Decodable>: Decodable {
+    let success: Bool?
+    let data: T
 }
