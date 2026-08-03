@@ -26,6 +26,9 @@ struct LogProgressView: View {
                         .foregroundStyle(.secondary)
                 } else {
                     Picker("Project", selection: $selectedProjectId) {
+                        if selectedProjectId == nil {
+                            Text("Select a project").tag(Optional<Int>.none)
+                        }
                         ForEach(dataStore.projects) { project in
                             Text(project.title).tag(Optional(project.id))
                         }
