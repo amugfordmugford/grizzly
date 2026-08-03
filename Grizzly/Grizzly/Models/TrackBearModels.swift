@@ -105,11 +105,12 @@ struct TallyCreateRequest: Encodable {
     var date: String
     var measure: Measure
     var count: Int
-    /// TrackBear's API requires this key even when there's nothing to say —
-    /// omitting it (as Swift does for a nil Optional) fails server-side validation.
+    /// TrackBear's API requires these keys even when there's nothing to send —
+    /// omitting them (as Swift does for a nil Optional) fails server-side validation.
     var note: String
     var workId: Int?
     var setTotal: Bool?
+    var tags: [String] = []
 }
 
 /// TrackBear's documented error envelope, used only when a request fails.
