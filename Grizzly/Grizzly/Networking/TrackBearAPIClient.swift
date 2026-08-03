@@ -137,5 +137,6 @@ struct TrackBearAPIClient {
 /// Some endpoints (ping, delete) return a body too minimal to be worth modeling precisely.
 /// The empty `init` accepts whatever shape the server sends back.
 struct EmptyResponse: Decodable {
+    init() {}
     init(from decoder: Decoder) throws {}
 }
