@@ -13,6 +13,11 @@ struct LogProgressView: View {
     @State private var isSubmitting = false
     @State private var resultMessage: String?
     @State private var resultSucceeded = false
+    @FocusState private var focusedField: Field?
+
+    private enum Field {
+        case count, note
+    }
 
     private var selectedProject: Project? {
         dataStore.projects.first { $0.id == selectedProjectId }
@@ -45,6 +50,7 @@ struct LogProgressView: View {
                 HStack {
                     TextField(setTotal ? "New total \(measure.unitHint)" : "\(measure.unitHint.capitalized) added", text: $countText)
                         .keyboardType(.numberPad)
+                        .focused($focusedField, equals: .count)
                     Text(measure.unitHint)
                         .foregroundStyle(.secondary)
                 }
@@ -55,6 +61,7 @@ struct LogProgressView: View {
             Section("Note") {
                 TextField("Optional note", text: $note, axis: .vertical)
                     .lineLimit(1...4)
+                    .focused($focusedField, equals: .note)
             }
 
             Section {
@@ -77,6 +84,13 @@ struct LogProgressView: View {
             }
         }
         .navigationTitle("Log Progress")
+        .scrollDismissesKeyboard(.interactively)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") { focusedField = nil }
+            }
+        }
         .task {
             if dataStore.projects.isEmpty {
                 await dataStore.refreshProjects(using: settings)
