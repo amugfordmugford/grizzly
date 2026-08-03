@@ -105,7 +105,9 @@ struct TallyCreateRequest: Encodable {
     var date: String
     var measure: Measure
     var count: Int
-    var note: String?
+    /// TrackBear's API requires this key even when there's nothing to say —
+    /// omitting it (as Swift does for a nil Optional) fails server-side validation.
+    var note: String
     var workId: Int?
     var setTotal: Bool?
 }

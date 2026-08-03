@@ -104,7 +104,7 @@ struct LogProgressView: View {
             date: DateFormatter.trackBearDate.string(from: date),
             measure: measure,
             count: count,
-            note: note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : note,
+            note: note.trimmingCharacters(in: .whitespacesAndNewlines),
             workId: workId,
             setTotal: setTotal
         )
