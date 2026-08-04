@@ -25,6 +25,21 @@ struct SettingsView: View {
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                 Link("Get a token from trackbear.app", destination: URL(string: "https://trackbear.app/account/api-keys")!)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("To get your API key:")
+                        .fontWeight(.semibold)
+                    Text("1. Log in to your TrackBear account.")
+                    Text("2. Tap your name in the top right corner and select **API Keys** from the menu.")
+                    Text("3. Tap **New**.")
+                    Text("4. Give your key a name, and choose how long it should stay valid. If it expires, you'll need to create a new one to keep this app connected.")
+                    Text("5. Tap **Create**.")
+                    Text("6. Copy the API key it shows you — it probably starts with \"tb.\"")
+                    Text("7. Paste that key into the field above.")
+                }
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .padding(.vertical, 4)
             }
 
             Section("Server") {
