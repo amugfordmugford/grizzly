@@ -99,18 +99,26 @@ struct LeaderboardDetailView: View {
             }
 
             Section("Standings") {
-                ForEach(sortedParticipants) { participant in
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Text(participant.displayName)
-                                .font(.headline)
-                            Spacer()
-                            Text(progressText(for: participant))
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-                        if let goalCount = participant.goal?.count, goalCount > 0 {
-                            ProgressView(value: Double(participant.progressCount), total: Double(goalCount))
+                ForEach(Array(sortedParticipants.enumerated()), id: \.element.id) { index, participant in
+                    let rank = index + 1
+                    HStack(alignment: .top, spacing: 10) {
+                        rankBadge(rank)
+                        Circle()
+                            .fill(LeaderboardChartView.color(for: participant, among: participants))
+                            .frame(width: 10, height: 10)
+                            .padding(.top, 5)
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text(participant.displayName)
+                                    .font(.headline)
+                                Spacer()
+                                Text(progressText(for: participant))
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                            if let goalCount = participant.goal?.count, goalCount > 0 {
+                                ProgressView(value: Double(participant.progressCount), total: Double(goalCount))
+                            }
                         }
                     }
                     .padding(.vertical, 2)
@@ -148,6 +156,26 @@ struct LeaderboardDetailView: View {
         Measure.allCases.compactMap { measure in
             let value = goal.value(for: measure)
             return value > 0 ? (measure, value) : nil
+        }
+    }
+
+    @ViewBuilder
+    private func rankBadge(_ rank: Int) -> some View {
+        let color: Color = switch rank {
+        case 1: Color(red: 0.83, green: 0.68, blue: 0.21)
+        case 2: Color(red: 0.68, green: 0.68, blue: 0.70)
+        case 3: Color(red: 0.72, green: 0.45, blue: 0.20)
+        default: .secondary
+        }
+        if rank <= 50 {
+            Image(systemName: "\(rank).circle.fill")
+                .foregroundStyle(color)
+                .font(.title3)
+        } else {
+            Text("#\(rank)")
+                .font(.subheadline.monospacedDigit())
+                .foregroundStyle(color)
+                .frame(width: 22)
         }
     }
 
