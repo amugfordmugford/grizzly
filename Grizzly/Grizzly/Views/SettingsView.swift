@@ -33,6 +33,7 @@ struct SettingsView: View {
                     Text("5. Tap **Create**.")
                     Text("6. Copy the API key it shows you — it probably starts with \"tb.\"")
                     Text("7. Paste that key into the field above.")
+                    Text("8. Tap the **\(isOnboarding ? "Connect" : "Test Connection & Save")** button below. You should see a green checkmark that says \"Connected.\"")
                 }
                 .font(.footnote)
                 .foregroundStyle(.secondary)
