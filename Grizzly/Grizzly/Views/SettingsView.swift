@@ -61,6 +61,18 @@ struct SettingsView: View {
                     }
                 }
             }
+
+            Section {
+                VStack(spacing: 4) {
+                    Text("Made with love by Andrew.")
+                    Link("Contact me at jointcommand@icloud.com", destination: URL(string: "mailto:jointcommand@icloud.com")!)
+                }
+                .frame(maxWidth: .infinity)
+                .multilineTextAlignment(.center)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            }
+            .listRowBackground(Color.clear)
         }
         .navigationTitle("Settings")
         .onAppear {
