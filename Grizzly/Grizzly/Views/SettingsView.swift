@@ -4,7 +4,6 @@ struct SettingsView: View {
     @Environment(AppSettingsStore.self) private var settings
     var isOnboarding = false
 
-    @State private var baseURLText = ""
     @State private var tokenText = ""
     @State private var isTesting = false
     @State private var testResultMessage: String?
@@ -38,13 +37,6 @@ struct SettingsView: View {
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .padding(.vertical, 4)
-            }
-
-            Section("Server") {
-                TextField("Base URL", text: $baseURLText)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                    .keyboardType(.URL)
             }
 
             Section {
@@ -89,7 +81,6 @@ struct SettingsView: View {
         }
         .navigationTitle("Settings")
         .onAppear {
-            baseURLText = settings.baseURLString
             tokenText = settings.apiToken
         }
     }
@@ -100,9 +91,8 @@ struct SettingsView: View {
         defer { isTesting = false }
 
         let trimmedToken = tokenText.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedURL = baseURLText.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        guard let url = URL(string: trimmedURL) else {
+        guard let url = settings.baseURL else {
             testSucceeded = false
             testResultMessage = "That server URL doesn't look right."
             return
@@ -111,7 +101,6 @@ struct SettingsView: View {
         let client = TrackBearAPIClient(baseURL: url, token: trimmedToken)
         do {
             try await client.pingWithToken()
-            settings.baseURLString = trimmedURL
             settings.apiToken = trimmedToken
             testSucceeded = true
             testResultMessage = "Connected."
