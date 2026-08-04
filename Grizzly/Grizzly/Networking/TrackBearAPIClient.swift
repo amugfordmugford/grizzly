@@ -166,6 +166,10 @@ struct TrackBearAPIClient {
     func joinLeaderboard(uuid: String, _ body: LeaderboardJoinRequest) async throws -> LeaderboardMember {
         try await post("leaderboard/\(uuid)/me", body: body)
     }
+
+    func listLeaderboardParticipants(uuid: String) async throws -> [LeaderboardParticipant] {
+        try await get("leaderboard/\(uuid)/participants")
+    }
 }
 
 /// Some endpoints (ping, delete) return a body too minimal to be worth modeling precisely.

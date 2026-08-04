@@ -144,6 +144,37 @@ struct Leaderboard: Codable, Identifiable, Equatable {
     static func == (lhs: Leaderboard, rhs: Leaderboard) -> Bool { lhs.id == rhs.id }
 }
 
+struct LeaderboardParticipantTally: Codable, Equatable {
+    var uuid: String?
+    var date: String
+    var measure: Measure
+    var count: Int
+}
+
+struct LeaderboardParticipant: Codable, Identifiable, Equatable {
+    let id: Int
+    let uuid: String?
+    var displayName: String
+    var avatar: String?
+    var color: String?
+    var goal: LeaderboardGoal?
+    var tallies: [LeaderboardParticipantTally]?
+
+    /// Total progress toward this participant's own goal measure (or their
+    /// first-logged measure if they have no individual goal set).
+    var progressCount: Int {
+        let measure = goal?.measure ?? tallies?.first?.measure
+        guard let measure else { return 0 }
+        return tallies?.filter { $0.measure == measure }.reduce(0) { $0 + $1.count } ?? 0
+    }
+
+    var progressMeasure: Measure? {
+        goal?.measure ?? tallies?.first?.measure
+    }
+
+    static func == (lhs: LeaderboardParticipant, rhs: LeaderboardParticipant) -> Bool { lhs.id == rhs.id }
+}
+
 struct LeaderboardJoinRequest: Encodable {
     var displayName: String
     var color: String

@@ -1,7 +1,14 @@
 import SwiftUI
+import Charts
 
 struct LeaderboardDetailView: View {
+    @Environment(AppSettingsStore.self) private var settings
+
     let board: Leaderboard
+
+    @State private var participants: [LeaderboardParticipant] = []
+    @State private var isLoading = false
+    @State private var lastError: String?
 
     var body: some View {
         List {
@@ -40,28 +47,80 @@ struct LeaderboardDetailView: View {
                 }
             }
 
-            Section("Participants") {
-                let participants = board.members?.filter { $0.isParticipant != false } ?? []
-                if participants.isEmpty {
+            Section("Progress") {
+                if participants.isEmpty && !isLoading {
                     Text("No participants yet")
                         .foregroundStyle(.secondary)
-                } else {
-                    ForEach(participants) { member in
-                        HStack {
-                            Text(member.displayName)
-                            if member.isOwner == true {
-                                Spacer()
-                                Text("Owner")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                } else if hasChartData {
+                    Chart {
+                        ForEach(participants) { participant in
+                            ForEach(cumulativeSeries(for: participant), id: \.date) { point in
+                                LineMark(
+                                    x: .value("Date", point.date),
+                                    y: .value("Total", point.total)
+                                )
+                                .foregroundStyle(by: .value("Participant", participant.displayName))
                             }
                         }
                     }
+                    .frame(height: 220)
+                    .chartLegend(position: .bottom, spacing: 8)
+                    .padding(.vertical, 4)
+                }
+            }
+
+            Section("Standings") {
+                ForEach(sortedParticipants) { participant in
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Text(participant.displayName)
+                                .font(.headline)
+                            Spacer()
+                            Text(progressText(for: participant))
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        if let goalCount = participant.goal?.count, goalCount > 0 {
+                            ProgressView(value: Double(participant.progressCount), total: Double(goalCount))
+                        }
+                    }
+                    .padding(.vertical, 2)
                 }
             }
         }
         .navigationTitle(board.title)
         .navigationBarTitleDisplayMode(.inline)
+        .task {
+            await load()
+        }
+        .refreshable {
+            await load()
+        }
+        .overlay {
+            if isLoading && participants.isEmpty {
+                ProgressView()
+            }
+        }
+        .alert("Something Went Wrong", isPresented: errorBinding) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(lastError ?? "")
+        }
+    }
+
+    private var sortedParticipants: [LeaderboardParticipant] {
+        participants.sorted { $0.progressCount > $1.progressCount }
+    }
+
+    private var hasChartData: Bool {
+        participants.contains { !cumulativeSeries(for: $0).isEmpty }
+    }
+
+    private var errorBinding: Binding<Bool> {
+        Binding(
+            get: { lastError != nil },
+            set: { if !$0 { lastError = nil } }
+        )
     }
 
     private var dateRange: String? {
@@ -79,6 +138,45 @@ struct LeaderboardDetailView: View {
             return value > 0 ? (measure, value) : nil
         }
     }
+
+    private func progressText(for participant: LeaderboardParticipant) -> String {
+        guard let measure = participant.progressMeasure else { return "No entries yet" }
+        if let goalCount = participant.goal?.count, goalCount > 0 {
+            return "\(participant.progressCount) / \(goalCount) \(measure.unitHint)"
+        }
+        return "\(participant.progressCount) \(measure.unitHint)"
+    }
+
+    private func cumulativeSeries(for participant: LeaderboardParticipant) -> [(date: Date, total: Int)] {
+        guard let measure = participant.progressMeasure else { return [] }
+        let points = (participant.tallies ?? [])
+            .filter { $0.measure == measure }
+            .compactMap { tally -> (Date, Int)? in
+                guard let date = DateFormatter.trackBearDate.date(from: tally.date) else { return nil }
+                return (date, tally.count)
+            }
+            .sorted { $0.0 < $1.0 }
+
+        var running = 0
+        return points.map { date, count in
+            running += count
+            return (date, running)
+        }
+    }
+
+    private func load() async {
+        guard let client = settings.makeClient() else {
+            lastError = TrackBearError.notConfigured.errorDescription
+            return
+        }
+        isLoading = true
+        defer { isLoading = false }
+        do {
+            participants = try await client.listLeaderboardParticipants(uuid: board.uuid)
+        } catch {
+            lastError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+        }
+    }
 }
 
 #Preview {
@@ -88,10 +186,8 @@ struct LeaderboardDetailView: View {
             startDate: "2026-11-01", endDate: "2026-11-30", individualGoalMode: false,
             measures: [.word], goal: MeasureCounts(word: 50000, time: nil, page: nil, chapter: nil, scene: nil, line: nil),
             isJoinable: true, starred: true,
-            members: [
-                LeaderboardMember(id: 1, displayName: "You", avatar: nil, isParticipant: true, isOwner: true, userUuid: nil),
-                LeaderboardMember(id: 2, displayName: "A Friend", avatar: nil, isParticipant: true, isOwner: false, userUuid: nil)
-            ]
+            members: nil
         ))
+        .environment(AppSettingsStore())
     }
 }
