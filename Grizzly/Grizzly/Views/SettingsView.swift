@@ -24,12 +24,10 @@ struct SettingsView: View {
                 SecureField("API token", text: $tokenText)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
-                Link("Get a token from trackbear.app", destination: URL(string: "https://trackbear.app/account/api-keys")!)
-
                 VStack(alignment: .leading, spacing: 6) {
                     Text("To get your API key:")
                         .fontWeight(.semibold)
-                    Text("1. Log in to your TrackBear account.")
+                    Text("1. [Log in to your TrackBear account.](https://trackbear.app)")
                     Text("2. Tap your name in the top right corner and select **API Keys** from the menu.")
                     Text("3. Tap **New**.")
                     Text("4. Give your key a name, and choose how long it should stay valid. If it expires, you'll need to create a new one to keep this app connected.")
