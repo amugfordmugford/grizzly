@@ -16,28 +16,32 @@ struct LeaderboardsView: View {
                 )
             }
             ForEach(dataStore.leaderboards) { board in
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Text(board.title)
-                            .font(.headline)
-                        if board.starred == true {
-                            Image(systemName: "star.fill")
-                                .foregroundStyle(.yellow)
+                NavigationLink {
+                    LeaderboardDetailView(board: board)
+                } label: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Text(board.title)
+                                .font(.headline)
+                            if board.starred == true {
+                                Image(systemName: "star.fill")
+                                    .foregroundStyle(.yellow)
+                                    .font(.caption)
+                            }
+                        }
+                        if let range = dateRange(board) {
+                            Text(range)
                                 .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        if let count = board.members?.count, count > 0 {
+                            Text("\(count) participant\(count == 1 ? "" : "s")")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
                         }
                     }
-                    if let range = dateRange(board) {
-                        Text(range)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    if let count = board.members?.count, count > 0 {
-                        Text("\(count) participant\(count == 1 ? "" : "s")")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
+                    .padding(.vertical, 2)
                 }
-                .padding(.vertical, 2)
             }
         }
         .navigationTitle("Leaderboards")
