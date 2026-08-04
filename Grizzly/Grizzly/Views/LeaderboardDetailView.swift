@@ -3,6 +3,7 @@ import Charts
 
 struct LeaderboardDetailView: View {
     @Environment(AppSettingsStore.self) private var settings
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     let board: Leaderboard
 
@@ -11,6 +12,45 @@ struct LeaderboardDetailView: View {
     @State private var lastError: String?
 
     var body: some View {
+        Group {
+            if verticalSizeClass == .compact {
+                landscapeChart
+            } else {
+                portraitContent
+            }
+        }
+        .task {
+            await load()
+        }
+        .overlay {
+            if isLoading && participants.isEmpty {
+                ProgressView()
+            }
+        }
+        .alert("Something Went Wrong", isPresented: errorBinding) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(lastError ?? "")
+        }
+    }
+
+    /// Rotating to landscape hands the whole screen to the chart, matching
+    /// how Health/Stocks expand their charts on rotation.
+    private var landscapeChart: some View {
+        Group {
+            if LeaderboardChartView.hasData(participants) {
+                LeaderboardChartView(participants: participants)
+                    .padding()
+            } else {
+                Text("No progress logged yet")
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .navigationTitle(board.title)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private var portraitContent: some View {
         List {
             Section {
                 VStack(alignment: .leading, spacing: 4) {
@@ -51,21 +91,10 @@ struct LeaderboardDetailView: View {
                 if participants.isEmpty && !isLoading {
                     Text("No participants yet")
                         .foregroundStyle(.secondary)
-                } else if hasChartData {
-                    Chart {
-                        ForEach(participants) { participant in
-                            ForEach(cumulativeSeries(for: participant), id: \.date) { point in
-                                LineMark(
-                                    x: .value("Date", point.date),
-                                    y: .value("Total", point.total)
-                                )
-                                .foregroundStyle(by: .value("Participant", participant.displayName))
-                            }
-                        }
-                    }
-                    .frame(height: 220)
-                    .chartLegend(position: .bottom, spacing: 8)
-                    .padding(.vertical, 4)
+                } else if LeaderboardChartView.hasData(participants) {
+                    LeaderboardChartView(participants: participants)
+                        .frame(height: 220)
+                        .padding(.vertical, 4)
                 }
             }
 
@@ -90,30 +119,13 @@ struct LeaderboardDetailView: View {
         }
         .navigationTitle(board.title)
         .navigationBarTitleDisplayMode(.inline)
-        .task {
-            await load()
-        }
         .refreshable {
             await load()
-        }
-        .overlay {
-            if isLoading && participants.isEmpty {
-                ProgressView()
-            }
-        }
-        .alert("Something Went Wrong", isPresented: errorBinding) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text(lastError ?? "")
         }
     }
 
     private var sortedParticipants: [LeaderboardParticipant] {
         participants.sorted { $0.progressCount > $1.progressCount }
-    }
-
-    private var hasChartData: Bool {
-        participants.contains { !cumulativeSeries(for: $0).isEmpty }
     }
 
     private var errorBinding: Binding<Bool> {
@@ -145,23 +157,6 @@ struct LeaderboardDetailView: View {
             return "\(participant.progressCount) / \(goalCount) \(measure.unitHint)"
         }
         return "\(participant.progressCount) \(measure.unitHint)"
-    }
-
-    private func cumulativeSeries(for participant: LeaderboardParticipant) -> [(date: Date, total: Int)] {
-        guard let measure = participant.progressMeasure else { return [] }
-        let points = (participant.tallies ?? [])
-            .filter { $0.measure == measure }
-            .compactMap { tally -> (Date, Int)? in
-                guard let date = DateFormatter.trackBearDate.date(from: tally.date) else { return nil }
-                return (date, tally.count)
-            }
-            .sorted { $0.0 < $1.0 }
-
-        var running = 0
-        return points.map { date, count in
-            running += count
-            return (date, running)
-        }
     }
 
     private func load() async {
