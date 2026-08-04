@@ -14,28 +14,32 @@ struct ProjectsView: View {
                 )
             }
             ForEach(dataStore.projects) { project in
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Text(project.title)
-                            .font(.headline)
-                        if project.starred == true {
-                            Image(systemName: "star.fill")
-                                .foregroundStyle(.yellow)
+                NavigationLink {
+                    ProjectDetailView(project: project)
+                } label: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Text(project.title)
+                                .font(.headline)
+                            if project.starred == true {
+                                Image(systemName: "star.fill")
+                                    .foregroundStyle(.yellow)
+                                    .font(.caption)
+                            }
+                        }
+                        if let phase = project.phase, !phase.isEmpty {
+                            Text(phase)
                                 .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        if let totals = project.totals {
+                            Text(totalsSummary(totals))
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
                         }
                     }
-                    if let phase = project.phase, !phase.isEmpty {
-                        Text(phase)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    if let totals = project.totals {
-                        Text(totalsSummary(totals))
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
+                    .padding(.vertical, 2)
                 }
-                .padding(.vertical, 2)
             }
         }
         .navigationTitle("Projects")

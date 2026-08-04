@@ -22,6 +22,11 @@ struct RootView: View {
                         HistoryView()
                     }
                 }
+                Tab("Leaderboards", systemImage: "trophy") {
+                    NavigationStack {
+                        LeaderboardsView()
+                    }
+                }
                 Tab("Settings", systemImage: "gearshape") {
                     NavigationStack {
                         SettingsView()

@@ -113,6 +113,46 @@ struct TallyCreateRequest: Encodable {
     var tags: [String] = []
 }
 
+struct LeaderboardGoal: Codable, Equatable {
+    var measure: Measure
+    var count: Int
+}
+
+struct LeaderboardMember: Codable, Identifiable, Equatable {
+    let id: Int
+    var displayName: String
+    var avatar: String?
+    var isParticipant: Bool?
+    var isOwner: Bool?
+    var userUuid: String?
+}
+
+struct Leaderboard: Codable, Identifiable, Equatable {
+    let id: Int
+    let uuid: String
+    var title: String
+    var description: String?
+    var startDate: String?
+    var endDate: String?
+    var individualGoalMode: Bool?
+    var measures: [Measure]?
+    var goal: MeasureCounts?
+    var isJoinable: Bool?
+    var starred: Bool?
+    var members: [LeaderboardMember]?
+
+    static func == (lhs: Leaderboard, rhs: Leaderboard) -> Bool { lhs.id == rhs.id }
+}
+
+struct LeaderboardJoinRequest: Encodable {
+    var displayName: String
+    var color: String
+    var isParticipant: Bool
+    var goal: LeaderboardGoal
+    var workIds: [Int] = []
+    var tagIds: [Int] = []
+}
+
 /// TrackBear's documented error envelope, used only when a request fails.
 struct TrackBearErrorBody: Decodable {
     struct Detail: Decodable {

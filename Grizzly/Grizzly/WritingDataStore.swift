@@ -7,8 +7,10 @@ import Observation
 final class WritingDataStore {
     var projects: [Project] = []
     var tallies: [Tally] = []
+    var leaderboards: [Leaderboard] = []
     var isLoadingProjects = false
     var isLoadingTallies = false
+    var isLoadingLeaderboards = false
     var lastError: String?
 
     func refreshProjects(using settings: AppSettingsStore) async {
@@ -66,6 +68,42 @@ final class WritingDataStore {
             await refreshProjects(using: settings)
         } catch {
             lastError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+        }
+    }
+
+    func refreshLeaderboards(using settings: AppSettingsStore) async {
+        guard let client = settings.makeClient() else {
+            lastError = TrackBearError.notConfigured.errorDescription
+            return
+        }
+        isLoadingLeaderboards = true
+        defer { isLoadingLeaderboards = false }
+        do {
+            leaderboards = try await client.listLeaderboards()
+            lastError = nil
+        } catch {
+            lastError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+        }
+    }
+
+    @discardableResult
+    func joinLeaderboard(joinCode: String, displayName: String, using settings: AppSettingsStore) async -> Result<Leaderboard, Error> {
+        guard let client = settings.makeClient() else {
+            return .failure(TrackBearError.notConfigured)
+        }
+        do {
+            let board = try await client.getLeaderboard(joinCode: joinCode)
+            let request = LeaderboardJoinRequest(
+                displayName: displayName,
+                color: "",
+                isParticipant: true,
+                goal: LeaderboardGoal(measure: .word, count: 0)
+            )
+            _ = try await client.joinLeaderboard(uuid: board.uuid, request)
+            await refreshLeaderboards(using: settings)
+            return .success(board)
+        } catch {
+            return .failure(error)
         }
     }
 }

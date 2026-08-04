@@ -154,6 +154,18 @@ struct TrackBearAPIClient {
     func pingWithToken() async throws {
         let _: EmptyResponse = try await get("ping/api-token")
     }
+
+    func listLeaderboards() async throws -> [Leaderboard] {
+        try await get("leaderboard")
+    }
+
+    func getLeaderboard(joinCode: String) async throws -> Leaderboard {
+        try await get("leaderboard/joincode/\(joinCode)")
+    }
+
+    func joinLeaderboard(uuid: String, _ body: LeaderboardJoinRequest) async throws -> LeaderboardMember {
+        try await post("leaderboard/\(uuid)/me", body: body)
+    }
 }
 
 /// Some endpoints (ping, delete) return a body too minimal to be worth modeling precisely.
