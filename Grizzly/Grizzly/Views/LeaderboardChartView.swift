@@ -19,7 +19,14 @@ struct LeaderboardChartView: View {
             }
         }
         .chartLegend(position: .bottom, spacing: 8)
+        .chartScrollableAxes(.horizontal)
+        .chartXVisibleDomain(length: Self.visibleDomainSeconds)
     }
+
+    /// A two-week window by default — long enough to see a trend, short enough
+    /// that a month-plus board (NaNoWriMo, etc.) is worth scrolling through
+    /// rather than squeezed flat. Boards shorter than this just show everything.
+    private static let visibleDomainSeconds: TimeInterval = 60 * 60 * 24 * 14
 
     static func hasData(_ participants: [LeaderboardParticipant]) -> Bool {
         participants.contains { !cumulativeSeries(for: $0).isEmpty }
