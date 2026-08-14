@@ -188,6 +188,10 @@ struct LeaderboardDetailView: View {
     }
 
     private func load() async {
+        if settings.isDemoMode {
+            participants = DemoData.participants(forBoardUUID: board.uuid)
+            return
+        }
         guard let client = settings.makeClient() else {
             lastError = TrackBearError.notConfigured.errorDescription
             return

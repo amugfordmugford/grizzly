@@ -103,6 +103,13 @@ struct ProjectDetailView: View {
     }
 
     private func load() async {
+        if settings.isDemoMode {
+            let source = dataStore.tallies.isEmpty ? DemoData.tallies : dataStore.tallies
+            tallies = source
+                .filter { $0.workId == project.id }
+                .sorted { $0.date > $1.date }
+            return
+        }
         guard let client = settings.makeClient() else {
             lastError = TrackBearError.notConfigured.errorDescription
             return
@@ -118,9 +125,15 @@ struct ProjectDetailView: View {
     }
 
     private func delete(at offsets: IndexSet) {
-        guard let client = settings.makeClient() else { return }
         let toDelete = offsets.map { tallies[$0] }
         tallies.remove(atOffsets: offsets)
+        if settings.isDemoMode {
+            for tally in toDelete {
+                dataStore.tallies.removeAll { $0.id == tally.id }
+            }
+            return
+        }
+        guard let client = settings.makeClient() else { return }
         Task {
             for tally in toDelete {
                 do {

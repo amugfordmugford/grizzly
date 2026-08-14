@@ -78,6 +78,11 @@ struct JoinLeaderboardView: View {
     }
 
     private func lookUp() async {
+        if settings.isDemoMode {
+            preview = DemoData.leaderboards.first { $0.uuid == "demo-sprint" } ?? DemoData.leaderboards.first
+            errorMessage = nil
+            return
+        }
         guard let client = settings.makeClient() else {
             errorMessage = TrackBearError.notConfigured.errorDescription
             return

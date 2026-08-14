@@ -19,6 +19,20 @@ struct SettingsView: View {
                 }
             }
 
+            if settings.isDemoMode {
+                Section {
+                    Label("You're exploring the demo", systemImage: "wand.and.stars")
+                        .font(.headline)
+                    Text("Grizzly is showing sample data so you can try every feature. Exit the demo and add your API token below to connect your own TrackBear account.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    Button("Exit Demo Mode", role: .destructive) {
+                        settings.isDemoMode = false
+                        tokenText = settings.apiToken
+                    }
+                }
+            }
+
             Section("TrackBear API Token") {
                 SecureField("API token", text: $tokenText)
                     .textInputAutocapitalization(.never)
@@ -56,6 +70,18 @@ struct SettingsView: View {
                     Label(testResultMessage, systemImage: testSucceeded ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                         .foregroundStyle(testSucceeded ? .green : .red)
                         .font(.footnote)
+                }
+            }
+
+            if isOnboarding {
+                Section {
+                    Button {
+                        settings.startDemo()
+                    } label: {
+                        Label("Try the Demo", systemImage: "wand.and.stars")
+                    }
+                } footer: {
+                    Text("No account? Explore Grizzly with sample data first — no token required.")
                 }
             }
 
