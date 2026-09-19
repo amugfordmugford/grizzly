@@ -6,6 +6,8 @@ Grizzly is a companion app for [TrackBear](https://trackbear.app) — it lets yo
 
 Grizzly doesn't have its own account system. It connects directly to your existing TrackBear account using an **API key**.
 
+No account yet, or just want to look around first? Tap **Try the Demo** on the setup screen to explore every tab with sample data — no token required. You can exit the demo and connect your real account at any time from Settings.
+
 ### Getting your API key
 
 1. [Log in to your TrackBear account](https://trackbear.app).
@@ -29,7 +31,7 @@ The **Log** tab is for quickly recording a writing session:
 - **Date** — defaults to today, but you can log for a past day too.
 - **Note** — optional, for context on the entry.
 
-Tap **Log Progress** to submit. If your device keyboard is covering the tab bar, tap **Done** above the keyboard, or swipe down on the form to dismiss it.
+Tap **Log Progress** to submit — successful logs get a little confetti celebration. If your device keyboard is covering the tab bar, tap **Done** above the keyboard, or swipe down on the form to dismiss it.
 
 ## Projects
 
