@@ -12,6 +12,29 @@ extension View {
             self.background(.thinMaterial, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         }
     }
+
+    /// A faint amber-to-brown wash echoing the app icon, replacing the flat
+    /// system grouped background on a Form/List screen.
+    func warmBackground() -> some View {
+        modifier(WarmBackgroundModifier())
+    }
+}
+
+private struct WarmBackgroundModifier: ViewModifier {
+    @Environment(\.colorScheme) private var colorScheme
+
+    func body(content: Content) -> some View {
+        content
+            .scrollContentBackground(.hidden)
+            .background(gradient.ignoresSafeArea())
+    }
+
+    private var gradient: LinearGradient {
+        let colors: [Color] = colorScheme == .dark
+            ? [Color(red: 0.13, green: 0.10, blue: 0.08), Color(red: 0.09, green: 0.07, blue: 0.05)]
+            : [Color(red: 0.97, green: 0.93, blue: 0.86), Color(red: 0.93, green: 0.86, blue: 0.76)]
+        return LinearGradient(colors: colors, startPoint: .top, endPoint: .bottom)
+    }
 }
 
 /// A large, rounded-weight number paired with a small caption label — for

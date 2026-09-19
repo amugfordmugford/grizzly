@@ -45,6 +45,7 @@ struct ProjectsView: View {
                 .listRowSeparator(.hidden)
             }
         }
+        .warmBackground()
         .navigationTitle("Projects")
         .refreshable {
             await dataStore.refreshProjects(using: settings)

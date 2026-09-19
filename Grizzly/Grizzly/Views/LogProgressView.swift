@@ -3,7 +3,6 @@ import SwiftUI
 struct LogProgressView: View {
     @Environment(AppSettingsStore.self) private var settings
     @Environment(WritingDataStore.self) private var dataStore
-    @Environment(\.colorScheme) private var colorScheme
 
     @State private var selectedProjectId: Int?
     @State private var measure: Measure = .word
@@ -105,8 +104,7 @@ struct LogProgressView: View {
                 }
             }
         }
-        .scrollContentBackground(.hidden)
-        .background(warmBackground.ignoresSafeArea())
+        .warmBackground()
         .navigationTitle("Log Progress")
         .scrollDismissesKeyboard(.interactively)
         .toolbar {
@@ -138,15 +136,6 @@ struct LogProgressView: View {
             ConfettiView(trigger: confettiTrigger)
         }
         .sensoryFeedback(.success, trigger: confettiTrigger)
-    }
-
-    /// A faint amber-to-brown wash echoing the app icon, for the one screen
-    /// people see most - kept subtle so Form rows stay the primary focus.
-    private var warmBackground: LinearGradient {
-        let colors: [Color] = colorScheme == .dark
-            ? [Color(red: 0.13, green: 0.10, blue: 0.08), Color(red: 0.09, green: 0.07, blue: 0.05)]
-            : [Color(red: 0.97, green: 0.93, blue: 0.86), Color(red: 0.93, green: 0.86, blue: 0.76)]
-        return LinearGradient(colors: colors, startPoint: .top, endPoint: .bottom)
     }
 
     private var canSubmit: Bool {

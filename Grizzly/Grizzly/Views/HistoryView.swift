@@ -48,6 +48,7 @@ struct HistoryView: View {
                 }
             }
         }
+        .warmBackground()
         .navigationTitle("History")
         .refreshable {
             await dataStore.refreshTallies(using: settings)

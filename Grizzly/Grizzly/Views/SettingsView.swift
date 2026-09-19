@@ -110,6 +110,7 @@ struct SettingsView: View {
             }
             .listRowBackground(Color.clear)
         }
+        .warmBackground()
         .navigationTitle("Settings")
         .onAppear {
             tokenText = settings.apiToken
