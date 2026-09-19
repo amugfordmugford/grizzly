@@ -195,12 +195,18 @@ struct TrackBearErrorBody: Decodable {
 }
 
 extension DateFormatter {
-    /// TrackBear dates are plain `YYYY-MM-DD`, with no time component.
+    /// TrackBear dates are plain `YYYY-MM-DD`, with no time component - they're
+    /// calendar dates, not instants. Using UTC here (as this used to) would
+    /// format/parse them against a different day than the device's local
+    /// "today" whenever local time is behind UTC, which is exactly what
+    /// caused today's entries to bucket as "Yesterday" in History. Using the
+    /// device's own time zone keeps the string round-tripping to the same
+    /// local day it was entered on.
     static let trackBearDate: DateFormatter = {
         let formatter = DateFormatter()
         formatter.calendar = Calendar(identifier: .gregorian)
         formatter.dateFormat = "yyyy-MM-dd"
-        formatter.timeZone = TimeZone(identifier: "UTC")
+        formatter.timeZone = TimeZone.current
         return formatter
     }()
 }
