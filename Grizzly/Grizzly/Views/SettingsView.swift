@@ -66,12 +66,15 @@ struct SettingsView: View {
                 }
                 .disabled(tokenText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isTesting)
 
-                if let testResultMessage {
-                    Label(testResultMessage, systemImage: testSucceeded ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-                        .foregroundStyle(testSucceeded ? .green : .red)
-                        .font(.footnote)
-                        .symbolEffect(.bounce, value: testSucceeded)
-                }
+                // Always present (not `if let`) so the Label's identity persists across
+                // the first result too - .symbolEffect needs an existing view to animate
+                // a change on, and a freshly-inserted view has no "before" state to diff.
+                Label(testResultMessage ?? "", systemImage: testSucceeded ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
+                    .foregroundStyle(testSucceeded ? .green : .red)
+                    .font(.footnote)
+                    .symbolEffect(.bounce, value: testSucceeded)
+                    .opacity(testResultMessage == nil ? 0 : 1)
+                    .frame(height: testResultMessage == nil ? 0 : nil)
             }
 
             if isOnboarding {
