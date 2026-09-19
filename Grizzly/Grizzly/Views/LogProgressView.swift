@@ -104,6 +104,14 @@ struct LogProgressView: View {
                 Spacer()
                 Button("Done") { focusedField = nil }
             }
+            ToolbarItem(placement: .topBarTrailing) {
+                Image("AppIconGraphic")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 34, height: 34)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .shadow(color: .black.opacity(0.15), radius: 2, x: 0, y: 1)
+            }
         }
         .task {
             if dataStore.projects.isEmpty {
