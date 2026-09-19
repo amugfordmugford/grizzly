@@ -131,6 +131,7 @@ struct LogProgressView: View {
         .overlay {
             ConfettiView(trigger: confettiTrigger)
         }
+        .sensoryFeedback(.success, trigger: confettiTrigger)
     }
 
     /// A faint amber-to-brown wash echoing the app icon, for the one screen

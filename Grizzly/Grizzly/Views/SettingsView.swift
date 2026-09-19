@@ -70,6 +70,7 @@ struct SettingsView: View {
                     Label(testResultMessage, systemImage: testSucceeded ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                         .foregroundStyle(testSucceeded ? .green : .red)
                         .font(.footnote)
+                        .symbolEffect(.bounce, value: testSucceeded)
                 }
             }
 

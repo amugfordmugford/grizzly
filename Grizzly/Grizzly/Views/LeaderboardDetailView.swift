@@ -190,7 +190,7 @@ struct LeaderboardDetailView: View {
 
     private func load() async {
         if settings.isDemoMode {
-            participants = DemoData.participants(forBoardUUID: board.uuid)
+            withAnimation { participants = DemoData.participants(forBoardUUID: board.uuid) }
             return
         }
         guard let client = settings.makeClient() else {
@@ -200,7 +200,8 @@ struct LeaderboardDetailView: View {
         isLoading = true
         defer { isLoading = false }
         do {
-            participants = try await client.listLeaderboardParticipants(uuid: board.uuid)
+            let fetched = try await client.listLeaderboardParticipants(uuid: board.uuid)
+            withAnimation { participants = fetched }
         } catch {
             lastError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
         }
