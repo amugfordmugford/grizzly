@@ -13,6 +13,7 @@ struct LogProgressView: View {
     @State private var isSubmitting = false
     @State private var resultMessage: String?
     @State private var resultSucceeded = false
+    @State private var confettiTrigger = 0
     @FocusState private var focusedField: Field?
 
     private enum Field {
@@ -115,6 +116,9 @@ struct LogProgressView: View {
         .refreshable {
             await dataStore.refreshProjects(using: settings)
         }
+        .overlay {
+            ConfettiView(trigger: confettiTrigger)
+        }
     }
 
     private var canSubmit: Bool {
@@ -142,6 +146,7 @@ struct LogProgressView: View {
             resultMessage = "Logged!"
             countText = ""
             note = ""
+            confettiTrigger += 1
         case .failure(let error):
             resultSucceeded = false
             resultMessage = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
