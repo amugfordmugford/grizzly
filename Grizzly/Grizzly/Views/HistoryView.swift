@@ -19,7 +19,8 @@ struct HistoryView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             HStack {
                                 Text("\(tally.count) \(tally.measure.unitHint)")
-                                    .font(.headline)
+                                    .font(.system(.headline, design: .rounded, weight: .bold))
+                                    .monospacedDigit()
                                 Spacer()
                                 Text(tally.date)
                                     .font(.caption)

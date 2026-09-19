@@ -113,7 +113,8 @@ struct LeaderboardDetailView: View {
                                     .font(.headline)
                                 Spacer()
                                 Text(progressText(for: participant))
-                                    .font(.subheadline)
+                                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                                    .monospacedDigit()
                                     .foregroundStyle(.secondary)
                             }
                             if let goalCount = participant.goal?.count, goalCount > 0 {
@@ -121,7 +122,11 @@ struct LeaderboardDetailView: View {
                             }
                         }
                     }
-                    .padding(.vertical, 2)
+                    .padding(10)
+                    .glassCard(cornerRadius: 14)
+                    .listRowInsets(EdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 12))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
                 }
             }
         }

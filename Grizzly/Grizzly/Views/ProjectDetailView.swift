@@ -36,9 +36,12 @@ struct ProjectDetailView: View {
                     Text("No progress logged yet")
                         .foregroundStyle(.secondary)
                 } else {
-                    ForEach(totalsRows, id: \.0) { measure, value in
-                        LabeledContent(measure.displayName, value: "\(value) \(measure.unitHint)")
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 120), spacing: 16)], alignment: .leading, spacing: 16) {
+                        ForEach(totalsRows, id: \.0) { measure, value in
+                            StatNumber(value: value.formatted(), label: measure.displayName)
+                        }
                     }
+                    .padding(.vertical, 6)
                 }
             }
 
