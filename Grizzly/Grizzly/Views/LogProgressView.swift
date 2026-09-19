@@ -55,6 +55,7 @@ struct LogProgressView: View {
                     Text(measure.unitHint)
                         .foregroundStyle(.secondary)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
                 Toggle("This is my new total, not an addition", isOn: $setTotal)
                 DatePicker("Date", selection: $date, displayedComponents: .date)
             }
