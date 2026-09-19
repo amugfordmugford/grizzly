@@ -137,7 +137,11 @@ struct TrackBearAPIClient {
     func listTallies(workId: Int? = nil) async throws -> [Tally] {
         var items: [URLQueryItem] = []
         if let workId {
-            items.append(URLQueryItem(name: "works", value: String(workId)))
+            // TrackBear's query parser only treats "works" as an array when the
+            // key uses bracket notation - a bare "works=123" parses as a scalar
+            // string and fails validation ("expected array, received string"),
+            // even for a single id.
+            items.append(URLQueryItem(name: "works[]", value: String(workId)))
         }
         return try await get("tally", queryItems: items)
     }
@@ -153,6 +157,22 @@ struct TrackBearAPIClient {
     /// Validates the token by hitting the authenticated ping endpoint.
     func pingWithToken() async throws {
         let _: EmptyResponse = try await get("ping/api-token")
+    }
+
+    func listLeaderboards() async throws -> [Leaderboard] {
+        try await get("leaderboard")
+    }
+
+    func getLeaderboard(joinCode: String) async throws -> Leaderboard {
+        try await get("leaderboard/joincode/\(joinCode)")
+    }
+
+    func joinLeaderboard(uuid: String, _ body: LeaderboardJoinRequest) async throws -> LeaderboardMember {
+        try await post("leaderboard/\(uuid)/me", body: body)
+    }
+
+    func listLeaderboardParticipants(uuid: String) async throws -> [LeaderboardParticipant] {
+        try await get("leaderboard/\(uuid)/participants")
     }
 }
 

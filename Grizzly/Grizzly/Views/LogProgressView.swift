@@ -65,16 +65,29 @@ struct LogProgressView: View {
             }
 
             Section {
-                Button {
-                    Task { await submit() }
-                } label: {
-                    if isSubmitting {
-                        ProgressView()
-                    } else {
-                        Text("Log Progress")
+                HStack {
+                    Spacer()
+                    Button {
+                        Task { await submit() }
+                    } label: {
+                        if isSubmitting {
+                            ProgressView()
+                        } else {
+                            Text("Log Progress")
+                                .font(.headline)
+                        }
                     }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 12)
+                    .foregroundStyle(canSubmit ? Color.accentColor : Color.secondary)
+                    .glassCard(cornerRadius: 16)
+                    .opacity(canSubmit ? 1 : 0.6)
+                    .disabled(!canSubmit || isSubmitting)
+                    Spacer()
                 }
-                .disabled(!canSubmit || isSubmitting)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
 
                 if let resultMessage {
                     Label(resultMessage, systemImage: resultSucceeded ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")

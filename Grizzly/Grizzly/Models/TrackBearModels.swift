@@ -113,6 +113,77 @@ struct TallyCreateRequest: Encodable {
     var tags: [String] = []
 }
 
+struct LeaderboardGoal: Codable, Equatable {
+    var measure: Measure
+    var count: Int
+}
+
+struct LeaderboardMember: Codable, Identifiable, Equatable {
+    let id: Int
+    var displayName: String
+    var avatar: String?
+    var isParticipant: Bool?
+    var isOwner: Bool?
+    var userUuid: String?
+}
+
+struct Leaderboard: Codable, Identifiable, Equatable {
+    let id: Int
+    let uuid: String
+    var title: String
+    var description: String?
+    var startDate: String?
+    var endDate: String?
+    var individualGoalMode: Bool?
+    var measures: [Measure]?
+    var goal: MeasureCounts?
+    var isJoinable: Bool?
+    var starred: Bool?
+    var members: [LeaderboardMember]?
+
+    static func == (lhs: Leaderboard, rhs: Leaderboard) -> Bool { lhs.id == rhs.id }
+}
+
+struct LeaderboardParticipantTally: Codable, Equatable {
+    var uuid: String?
+    var date: String
+    var measure: Measure
+    var count: Int
+}
+
+struct LeaderboardParticipant: Codable, Identifiable, Equatable {
+    let id: Int
+    let uuid: String?
+    var displayName: String
+    var avatar: String?
+    var color: String?
+    var goal: LeaderboardGoal?
+    var tallies: [LeaderboardParticipantTally]?
+
+    /// Total progress toward this participant's own goal measure (or their
+    /// first-logged measure if they have no individual goal set).
+    var progressCount: Int {
+        let measure = goal?.measure ?? tallies?.first?.measure
+        guard let measure else { return 0 }
+        return tallies?.filter { $0.measure == measure }.reduce(0) { $0 + $1.count } ?? 0
+    }
+
+    var progressMeasure: Measure? {
+        goal?.measure ?? tallies?.first?.measure
+    }
+
+    static func == (lhs: LeaderboardParticipant, rhs: LeaderboardParticipant) -> Bool { lhs.id == rhs.id }
+}
+
+struct LeaderboardJoinRequest: Encodable {
+    var displayName: String
+    var color: String
+    var isParticipant: Bool
+    var goal: LeaderboardGoal
+    var workIds: [Int] = []
+    var tagIds: [Int] = []
+}
+
 /// TrackBear's documented error envelope, used only when a request fails.
 struct TrackBearErrorBody: Decodable {
     struct Detail: Decodable {
@@ -124,12 +195,18 @@ struct TrackBearErrorBody: Decodable {
 }
 
 extension DateFormatter {
-    /// TrackBear dates are plain `YYYY-MM-DD`, with no time component.
+    /// TrackBear dates are plain `YYYY-MM-DD`, with no time component - they're
+    /// calendar dates, not instants. Using UTC here (as this used to) would
+    /// format/parse them against a different day than the device's local
+    /// "today" whenever local time is behind UTC, which is exactly what
+    /// caused today's entries to bucket as "Yesterday" in History. Using the
+    /// device's own time zone keeps the string round-tripping to the same
+    /// local day it was entered on.
     static let trackBearDate: DateFormatter = {
         let formatter = DateFormatter()
         formatter.calendar = Calendar(identifier: .gregorian)
         formatter.dateFormat = "yyyy-MM-dd"
-        formatter.timeZone = TimeZone(identifier: "UTC")
+        formatter.timeZone = TimeZone.current
         return formatter
     }()
 }
