@@ -57,6 +57,12 @@ struct LogProgressView: View {
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .listRowSeparator(.hidden)
+                .overlay(alignment: .bottom) {
+                    Rectangle()
+                        .fill(Color(.separator))
+                        .frame(height: 0.5)
+                }
                 Toggle("This is my new total, not an addition", isOn: $setTotal)
                 DatePicker("Date", selection: $date, displayedComponents: .date)
             }
