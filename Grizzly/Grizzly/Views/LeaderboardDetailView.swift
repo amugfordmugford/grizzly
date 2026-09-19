@@ -101,30 +101,26 @@ struct LeaderboardDetailView: View {
             Section("Standings") {
                 ForEach(Array(sortedParticipants.enumerated()), id: \.element.id) { index, participant in
                     let rank = index + 1
-                    HStack(alignment: .top, spacing: 10) {
-                        rankBadge(rank)
-                        Circle()
-                            .fill(LeaderboardChartView.color(for: participant, among: participants))
-                            .frame(width: 10, height: 10)
-                            .padding(.top, 5)
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                Text(participant.displayName)
-                                    .font(.headline)
-                                Spacer()
-                                Text(progressText(for: participant))
-                                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                                    .monospacedDigit()
-                                    .foregroundStyle(.secondary)
-                            }
-                            if let goalCount = participant.goal?.count, goalCount > 0 {
-                                ProgressView(value: Double(participant.progressCount), total: Double(goalCount))
+                    EdgeAccentCard(accentColor: LeaderboardChartView.color(for: participant, among: participants)) {
+                        HStack(alignment: .top, spacing: 10) {
+                            rankBadge(rank)
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Text(participant.displayName)
+                                        .font(.headline)
+                                    Spacer()
+                                    Text(progressText(for: participant))
+                                        .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                                        .monospacedDigit()
+                                        .foregroundStyle(.secondary)
+                                }
+                                if let goalCount = participant.goal?.count, goalCount > 0 {
+                                    ProgressView(value: Double(participant.progressCount), total: Double(goalCount))
+                                }
                             }
                         }
                     }
-                    .padding(10)
-                    .glassCard(cornerRadius: 14)
-                    .listRowInsets(EdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 12))
+                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                 }
@@ -194,7 +190,7 @@ struct LeaderboardDetailView: View {
 
     private func load() async {
         if settings.isDemoMode {
-            participants = DemoData.participants(forBoardUUID: board.uuid)
+            withAnimation { participants = DemoData.participants(forBoardUUID: board.uuid) }
             return
         }
         guard let client = settings.makeClient() else {
@@ -204,7 +200,8 @@ struct LeaderboardDetailView: View {
         isLoading = true
         defer { isLoading = false }
         do {
-            participants = try await client.listLeaderboardParticipants(uuid: board.uuid)
+            let fetched = try await client.listLeaderboardParticipants(uuid: board.uuid)
+            withAnimation { participants = fetched }
         } catch {
             lastError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
         }

@@ -13,33 +13,39 @@ struct ProjectsView: View {
                     description: Text("Create a project in TrackBear to see it here.")
                 )
             }
-            ForEach(dataStore.projects) { project in
+            ForEach(Array(dataStore.projects.enumerated()), id: \.element.id) { index, project in
                 NavigationLink {
                     ProjectDetailView(project: project)
                 } label: {
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Text(project.title)
-                                .font(.headline)
-                            if project.starred == true {
-                                Image(systemName: "star.fill")
-                                    .foregroundStyle(.yellow)
+                    EdgeAccentCard(accentColor: AccentPalette.color(at: index)) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text(project.title)
+                                    .font(.headline)
+                                if project.starred == true {
+                                    Image(systemName: "star.fill")
+                                        .foregroundStyle(.yellow)
+                                        .font(.caption)
+                                }
+                            }
+                            if let phase = project.phase, !phase.isEmpty {
+                                Text(phase)
                                     .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            if let totals = project.totals {
+                                totalsBadges(totals)
                             }
                         }
-                        if let phase = project.phase, !phase.isEmpty {
-                            Text(phase)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        if let totals = project.totals {
-                            totalsBadges(totals)
-                        }
                     }
-                    .padding(.vertical, 2)
                 }
+                .buttonStyle(.plain)
+                .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
             }
         }
+        .warmBackground()
         .navigationTitle("Projects")
         .refreshable {
             await dataStore.refreshProjects(using: settings)

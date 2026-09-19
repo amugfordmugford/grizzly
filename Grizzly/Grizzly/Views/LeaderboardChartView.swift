@@ -35,15 +35,13 @@ struct LeaderboardChartView: View {
     /// Assigns each participant a stable color by their position in the
     /// original (unsorted) list, so the same person is always the same color
     /// here and in the Standings list below, regardless of how either is sorted.
-    static let palette: [Color] = [.blue, .green, .orange, .purple, .pink, .teal, .yellow, .indigo, .mint, .cyan]
-
     func color(for participant: LeaderboardParticipant) -> Color {
         Self.color(for: participant, among: participants)
     }
 
     static func color(for participant: LeaderboardParticipant, among participants: [LeaderboardParticipant]) -> Color {
         guard let index = participants.firstIndex(where: { $0.id == participant.id }) else { return .secondary }
-        return palette[index % palette.count]
+        return AccentPalette.color(at: index)
     }
 
     static func hasData(_ participants: [LeaderboardParticipant]) -> Bool {

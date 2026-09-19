@@ -44,6 +44,7 @@ struct LeaderboardsView: View {
                 }
             }
         }
+        .warmBackground()
         .navigationTitle("Leaderboards")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {

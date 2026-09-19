@@ -13,6 +13,7 @@ struct LogProgressView: View {
     @State private var isSubmitting = false
     @State private var resultMessage: String?
     @State private var resultSucceeded = false
+    @State private var confettiTrigger = 0
     @FocusState private var focusedField: Field?
 
     private enum Field {
@@ -53,6 +54,13 @@ struct LogProgressView: View {
                         .focused($focusedField, equals: .count)
                     Text(measure.unitHint)
                         .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .listRowSeparator(.hidden)
+                .overlay(alignment: .bottom) {
+                    Rectangle()
+                        .fill(Color(.separator))
+                        .frame(height: 0.5)
                 }
                 Toggle("This is my new total, not an addition", isOn: $setTotal)
                 DatePicker("Date", selection: $date, displayedComponents: .date)
@@ -96,12 +104,21 @@ struct LogProgressView: View {
                 }
             }
         }
+        .warmBackground()
         .navigationTitle("Log Progress")
         .scrollDismissesKeyboard(.interactively)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
                 Button("Done") { focusedField = nil }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Image("AppIconGraphic")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 34, height: 34)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .shadow(color: .black.opacity(0.15), radius: 2, x: 0, y: 1)
             }
         }
         .task {
@@ -115,6 +132,10 @@ struct LogProgressView: View {
         .refreshable {
             await dataStore.refreshProjects(using: settings)
         }
+        .overlay {
+            ConfettiView(trigger: confettiTrigger)
+        }
+        .sensoryFeedback(.success, trigger: confettiTrigger)
     }
 
     private var canSubmit: Bool {
@@ -142,6 +163,7 @@ struct LogProgressView: View {
             resultMessage = "Logged!"
             countText = ""
             note = ""
+            confettiTrigger += 1
         case .failure(let error):
             resultSucceeded = false
             resultMessage = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
