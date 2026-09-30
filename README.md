@@ -8,6 +8,7 @@ A small iOS app for logging your writing progress straight to [TrackBear](https:
 - **Projects** — see your TrackBear projects as cards with running totals; tap one for a full totals breakdown and its complete entry history.
 - **History** — everything you've logged, grouped into Today / Yesterday / This Week / Earlier, with swipe-to-delete.
 - **Leaderboards** — view boards you're part of, join a new one by code, and see a leaderboard's cumulative-progress chart (scrollable, full-screen in landscape) and ranked standings.
+- **Reminders** — toggle a daily local notification ("This is a gentle reminder to write today!") and pick the time it fires.
 - **Settings** — paste in your TrackBear API token (stored in the Keychain, never in plain text), test the connection, and sign out. Includes step-by-step instructions for getting a token.
 - **Demo Mode** — explore the whole app with sample data, no TrackBear account or token required (also what App Review uses).
 
@@ -28,13 +29,14 @@ Grizzly/
   GrizzlyApp.swift          entry point
   AppSettingsStore.swift    API token + base URL (Keychain-backed) + demo mode flag
   WritingDataStore.swift    shared cache of projects/tallies/leaderboards for the session
+  ReminderStore.swift       daily local-notification reminder (on/off, time, authorization)
   DemoData.swift            static sample data backing Demo Mode
   Models/                   Codable types matching the TrackBear API
   Networking/               URLSession-based API client + Keychain wrapper
   Views/
     LogProgressView, ProjectsView, ProjectDetailView, HistoryView
     LeaderboardsView, LeaderboardDetailView, LeaderboardChartView, JoinLeaderboardView
-    SettingsView, ConfettiView, ViewModifiers (shared styling: glass cards,
+    SettingsView, ReminderView, ConfettiView, ViewModifiers (shared styling: glass cards,
     accent-edge cards, the warm background wash, stat numbers, color palette)
 ```
 

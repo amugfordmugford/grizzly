@@ -57,6 +57,15 @@ Shows leaderboards you're already part of.
   - **Standings** — everyone's progress toward their goal, ranked, with gold/silver/bronze badges for the top 3.
 - **Rotate your device to landscape** while viewing a leaderboard to expand the chart to fill the screen.
 
+## Reminders
+
+Get a daily nudge to write.
+
+- Turn on **Daily writing reminder** and pick a time with **Remind me at**.
+- The first time you turn it on, iOS will ask permission to send notifications — allow it, or the reminder won't show up.
+- Every day at that time you'll get a notification: *"This is a gentle reminder to write today!"*
+- If you change your mind about permissions later, Grizzly will show a button to jump straight to its notification settings.
+
 ## Settings
 
 - Update or replace your API key here at any time.
