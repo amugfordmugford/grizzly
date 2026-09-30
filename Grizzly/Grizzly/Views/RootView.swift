@@ -27,6 +27,11 @@ struct RootView: View {
                         LeaderboardsView()
                     }
                 }
+                Tab("Reminders", systemImage: "bell.badge") {
+                    NavigationStack {
+                        ReminderView()
+                    }
+                }
                 Tab("Settings", systemImage: "gearshape") {
                     NavigationStack {
                         SettingsView()
@@ -45,4 +50,5 @@ struct RootView: View {
 #Preview {
     RootView()
         .environment(AppSettingsStore())
+        .environment(ReminderStore())
 }
